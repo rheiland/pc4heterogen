@@ -16,57 +16,82 @@ class UserTab(object):
         tab_height = '500px'
         stepsize = 10
 
-        style = {'description_width': '250px'}
+        #style = {'description_width': '250px'}
+        style = {'description_width': '25%'}
         layout = {'width': '400px'}
 
+        name_button_layout={'width':'25%'}
+        widget_layout = {'width': '15%'}
+        units_button_layout ={'width':'15%'}
+        desc_button_layout={'width':'45%'}
+
+        param_name1 = Button(description='tumor_radius', disabled=True, layout=name_button_layout)
+        param_name1.style.button_color = 'lightgreen'
+
         self.tumor_radius = FloatText(
-          description='tumor_radius',
           value=250.0,
           step=10,
-          style=style, layout=layout)
+          style=style, layout=widget_layout)
+
+        param_name2 = Button(description='oncoprotein_mean', disabled=True, layout=name_button_layout)
+        param_name2.style.button_color = 'tan'
 
         self.oncoprotein_mean = FloatText(
-          description='oncoprotein_mean',
           value=1.0,
           step=0.1,
-          style=style, layout=layout)
+          style=style, layout=widget_layout)
+
+        param_name3 = Button(description='oncoprotein_sd', disabled=True, layout=name_button_layout)
+        param_name3.style.button_color = 'lightgreen'
 
         self.oncoprotein_sd = FloatText(
-          description='oncoprotein_sd',
           value=0.25,
           step=0.01,
-          style=style, layout=layout)
+          style=style, layout=widget_layout)
+
+        param_name4 = Button(description='oncoprotein_min', disabled=True, layout=name_button_layout)
+        param_name4.style.button_color = 'tan'
 
         self.oncoprotein_min = FloatText(
-          description='oncoprotein_min',
           value=0.0,
           step=0.01,
-          style=style, layout=layout)
+          style=style, layout=widget_layout)
+
+        param_name5 = Button(description='oncoprotein_max', disabled=True, layout=name_button_layout)
+        param_name5.style.button_color = 'lightgreen'
 
         self.oncoprotein_max = FloatText(
-          description='oncoprotein_max',
           value=2,
           step=0.1,
-          style=style, layout=layout)
+          style=style, layout=widget_layout)
 
-        param_button_layout={'width':'400px'} 
+        units_button1 = Button(description='micron', disabled=True, layout=units_button_layout) 
+        units_button1.style.button_color = 'lightgreen'
+        units_button2 = Button(description='', disabled=True, layout=units_button_layout) 
+        units_button2.style.button_color = 'tan'
+        units_button3 = Button(description='', disabled=True, layout=units_button_layout) 
+        units_button3.style.button_color = 'lightgreen'
+        units_button4 = Button(description='', disabled=True, layout=units_button_layout) 
+        units_button4.style.button_color = 'tan'
+        units_button5 = Button(description='', disabled=True, layout=units_button_layout) 
+        units_button5.style.button_color = 'lightgreen'
 
-        desc_row1 = Button(description='initial size of the tumor', disabled=True, layout=param_button_layout) 
-        desc_row1.style.button_color = 'lightgreen'
-        desc_row2 = Button(description='desired mean (for random dist)', disabled=True, layout=param_button_layout) 
-        desc_row2.style.button_color = 'tan'
-        desc_row3 = Button(description='desired std dev (for random dist)', disabled=True, layout=param_button_layout) 
-        desc_row3.style.button_color = 'lightgreen'
-        desc_row4 = Button(description='min threshold', disabled=True, layout=param_button_layout) 
-        desc_row4.style.button_color = 'tan'
-        desc_row5 = Button(description='max threshold', disabled=True, layout=param_button_layout) 
-        desc_row5.style.button_color = 'lightgreen'
+        desc_button1 = Button(description='initial size of the tumor', disabled=True, layout=desc_button_layout) 
+        desc_button1.style.button_color = 'lightgreen'
+        desc_button2 = Button(description='desired mean (for random dist)', disabled=True, layout=desc_button_layout) 
+        desc_button2.style.button_color = 'tan'
+        desc_button3 = Button(description='desired std dev (for random dist)', disabled=True, layout=desc_button_layout) 
+        desc_button3.style.button_color = 'lightgreen'
+        desc_button4 = Button(description='min threshold', disabled=True, layout=desc_button_layout) 
+        desc_button4.style.button_color = 'tan'
+        desc_button5 = Button(description='max threshold', disabled=True, layout=desc_button_layout) 
+        desc_button5.style.button_color = 'lightgreen'
 
-        row1 = [self.tumor_radius, Label('micron' , layout=Layout(flex='1 1 auto', width='auto')), desc_row1] 
-        row2 = [self.oncoprotein_mean, Label('' , layout=Layout(flex='1 1 auto', width='auto')), desc_row2] 
-        row3 = [self.oncoprotein_sd, Label('' , layout=Layout(flex='1 1 auto', width='auto')), desc_row3] 
-        row4 = [self.oncoprotein_min, Label('' , layout=Layout(flex='1 1 auto', width='auto')), desc_row4] 
-        row5 = [self.oncoprotein_max, Label('' , layout=Layout(flex='1 1 auto', width='auto')), desc_row5] 
+        row1 = [param_name1, self.tumor_radius, units_button1, desc_button1] 
+        row2 = [param_name2, self.oncoprotein_mean, units_button2, desc_button2] 
+        row3 = [param_name3, self.oncoprotein_sd, units_button3, desc_button3] 
+        row4 = [param_name4, self.oncoprotein_min, units_button4, desc_button4] 
+        row5 = [param_name5, self.oncoprotein_max, units_button5, desc_button5] 
 
         box_layout = Layout(display='flex', flex_flow='row', align_items='stretch', width='100%')
         box1 = Box(children=row1, layout=box_layout)
