@@ -76,15 +76,15 @@ class UserTab(object):
         units_button5 = Button(description='', disabled=True, layout=units_button_layout) 
         units_button5.style.button_color = 'lightgreen'
 
-        desc_button1 = Button(description='initial size of the tumor', disabled=True, layout=desc_button_layout) 
+        desc_button1 = Button(description='initial tumor radius', disabled=True, layout=desc_button_layout) 
         desc_button1.style.button_color = 'lightgreen'
-        desc_button2 = Button(description='desired mean (for random dist)', disabled=True, layout=desc_button_layout) 
+        desc_button2 = Button(description='mean oncoprotein value p at start', disabled=True, layout=desc_button_layout) 
         desc_button2.style.button_color = 'tan'
-        desc_button3 = Button(description='desired std dev (for random dist)', disabled=True, layout=desc_button_layout) 
+        desc_button3 = Button(description='standard deviation of oncoprotein p at start', disabled=True, layout=desc_button_layout) 
         desc_button3.style.button_color = 'lightgreen'
-        desc_button4 = Button(description='min threshold', disabled=True, layout=desc_button_layout) 
+        desc_button4 = Button(description='p is not allowed to fall below this value', disabled=True, layout=desc_button_layout) 
         desc_button4.style.button_color = 'tan'
-        desc_button5 = Button(description='max threshold', disabled=True, layout=desc_button_layout) 
+        desc_button5 = Button(description='p is not allowed to exceed this value', disabled=True, layout=desc_button_layout) 
         desc_button5.style.button_color = 'lightgreen'
 
         row1 = [param_name1, self.tumor_radius, units_button1, desc_button1] 
