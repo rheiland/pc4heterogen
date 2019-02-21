@@ -115,11 +115,11 @@
 	</save>
 	
 	<user_parameters>
-		<tumor_radius type="double" units="micron" description="initial size of the tumor">250.0</tumor_radius>
-		<oncoprotein_mean type="double" units="dimensionless" description="desired mean (for random dist)">1.0</oncoprotein_mean>
-		<oncoprotein_sd type="double" units="dimensionless" description="desired std dev (for random dist)">0.25</oncoprotein_sd>
-		<oncoprotein_min type="double" units="dimensionless" description="min threshold">0.0</oncoprotein_min>
-		<oncoprotein_max type="double" units="dimensionless" description="max threshold">2</oncoprotein_max>
+		<tumor_radius type="double" units="micron" description="initial tumor radius">250.0</tumor_radius>
+		<oncoprotein_mean type="double" units="dimensionless" description="mean oncoprotein value p at start">1.0</oncoprotein_mean>
+		<oncoprotein_sd type="double" units="dimensionless" description="standard deviation of oncoprotein p at start">0.25</oncoprotein_sd>
+		<oncoprotein_min type="double" units="dimensionless" description="p is not allowed to fall below this value">0.0</oncoprotein_min>
+		<oncoprotein_max type="double" units="dimensionless" description="p is not allowed to exceed this value">2</oncoprotein_max>
 		<random_seed type="int" units="dimensionless" hidden="true">0</random_seed>
 	</user_parameters>
 	
