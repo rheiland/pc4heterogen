@@ -16,6 +16,7 @@
 import sys
 import shutil
 import os
+import platform
 
 
 num_args = len(sys.argv)
@@ -35,8 +36,11 @@ with open('middleware/invoke', 'w') as myfile:
 #--------------
 old_file = os.path.join("bin", 'tool4ise.py')
 new_file = os.path.join("bin", toolname + '.py')
-shutil.move(old_file, new_file)
-print('Renaming ',old_file, ' to ',new_file)
+try:
+    shutil.move(old_file, new_file)
+    print('Renaming ',old_file, ' to ',new_file)
+except:
+    print("  ---> Cannot rename ",old_file," to ",new_file, ", but we will continue")
 
 print('Replacing toolname in ',new_file)
 with open(new_file, 'r') as myfile:
@@ -47,8 +51,11 @@ with open(new_file, 'w') as myfile:
 #--------------
 old_file = 'tool4ise.ipynb'
 new_file = toolname + '.ipynb'
-shutil.move(old_file, new_file)
-print('Renaming ',old_file, ' to ',new_file)
+try:
+    shutil.move(old_file, new_file)
+    print('Renaming ',old_file, ' to ',new_file)
+except:
+    print("  ---> Cannot rename ",old_file," to ",new_file, ", but we will continue")
 
 print('Replacing toolname in ',new_file)
 with open(new_file, 'r') as myfile:
@@ -63,16 +70,26 @@ In /data:
 python xml2jupyter.py PhysiCell_settings.xml
 Copy the generated user_params.py to ../bin
 """
-print('Running xml2jupyter on your .xml file')
+print('Trying to run xml2jupyter.py on your .xml file in /data')
 os.chdir("data")
-os.system("python xml2jupyter.py PhysiCell_settings.xml")
-new_file = os.path.join("..","bin")
-shutil.copy("user_params.py", new_file)
-
+cmd = "python xml2jupyter.py PhysiCell_settings.xml"
 try:
-    print("Trying to import hublib.ui")
-    import hublib.ui
+    os.system("python xml2jupyter.py PhysiCell_settings.xml")
 except:
-    print("hublib.ui is not found, will try to install it.")
-    os.system("pip install -U hublib")
+    print("  ---> Cannot execute: ",cmd)
 
+
+new_file = os.path.join("..","bin")
+try:
+    shutil.copy("user_params.py", new_file)
+except:
+    print("  ---> Cannot copy data/user_params.py to bin/user_params.py")
+    print("         You will need to do that manually.\n")
+
+if platform.system() != 'Windows':
+    try:
+        print("Trying to import hublib.ui")
+        import hublib.ui
+    except:
+        print("hublib.ui is not found, will try to install it.")
+        os.system("pip install -U hublib")
