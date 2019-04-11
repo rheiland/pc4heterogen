@@ -305,6 +305,8 @@ tabs = widgets.Tab(children=[about_tab.tab, config_tab.tab, user_tab.tab, svg.ta
 homedir = os.getcwd()
 
 tool_title = widgets.Label(r'\(\textbf{pc4heterogen}\)')
+gui_height = '900px'
+gui_layout = widgets.Layout(width='auto',height=gui_height, overflow_y='scroll',)   # border='2px solid black',
 if nanoHUB_flag:
     # define this, but don't use (yet)
     remote_cb = widgets.Checkbox(indent=False, value=False, description='Submit as Batch Job to Clusters/Grid')
@@ -313,7 +315,7 @@ if nanoHUB_flag:
     gui = widgets.VBox(children=[top_row, tabs, run_button.w])
 else:
     top_row = widgets.HBox(children=[tool_title])
-    gui = widgets.VBox(children=[top_row, tabs, run_button.w])
+    gui = widgets.VBox(children=[top_row, tabs, run_button.w], layout=gui_layout)
 
 fill_gui_params(read_config.options['DEFAULT'])
 
