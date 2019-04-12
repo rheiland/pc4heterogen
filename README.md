@@ -2,4 +2,4 @@
 
 [![Build Status](https://travis-ci.com/rheiland/pc4heterogen.svg?branch=master)](https://travis-ci.com/rheiland/pc4heterogen)
 
-PhysiCell 2D heterogeneous tumor example with Jupyter GUI
+A PhysiCell heterogeneous cancer tumor example using a Jupyter notebook GUI. This app can be run at https://nanohub.org/tools/pc4heterogen.
