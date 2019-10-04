@@ -1,5 +1,5 @@
 VERSION := $(shell grep . VERSION.txt | cut -f1 -d:)
-PROGRAM_NAME := myproj
+PROGRAM_NAME:= myproj
 
 CC := g++
 # CC := g++-mp-7 # typical macports compiler name
@@ -145,9 +145,9 @@ reset:
 	touch ./custom_modules/empty.txt 
 	touch ALL_CITATIONS.txt 
 	rm ALL_CITATIONS.txt 
-	cp ./config/PhysiCell_settings_default.xml ./config/PhysiCell_settings.xml 
-	touch ./config/empty.txt
+	cp ./config/PhysiCell_settings-backup.xml ./config/PhysiCell_settings.xml 
 	
+# next 2 targets for nanoHUB
 install: all
 	cp $(PROGRAM_NAME) ../bin
 
@@ -156,7 +156,6 @@ distclean: clean
 
 clean:
 	rm -f *.o
-#	rm -f $(PROGRAM_NAME)*
 	rm -f $(PROGRAM_NAME)
 	
 data-cleanup:
@@ -164,7 +163,7 @@ data-cleanup:
 	rm -f *.xml
 	rm -f *.svg
 	rm -f ./output/*
-	touch ./config/empty.txt
+	touch ./output/empty.txt
 	
 # archival 
 	

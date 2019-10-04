@@ -310,9 +310,13 @@ Cell::Cell()
 	
 	phenotype = cell_defaults.phenotype; 
 	
+	phenotype.molecular.sync_to_cell( this ); 
+	
 	// cell state should be fine by the default constructor 
 	
 	current_mechanics_voxel_index=-1;
+	
+	updated_current_mechanics_voxel_index = 0;
 	
 	is_movable = true;
 	is_out_of_domain = false;
@@ -320,6 +324,7 @@ Cell::Cell()
 	
 	assign_orientation();
 	container = NULL;
+	
 	
 	return; 
 }
@@ -391,6 +396,11 @@ Cell* Cell::divide( )
 	child->copy_data( this );	
 	child->copy_function_pointers(this);
 	child->parameters = parameters;
+	
+	// evenly divide internalized substrates 
+	// if these are not actively tracked, they are zero anyway 
+	*internalized_substrates *= 0.5; 
+	*(child->internalized_substrates) = *internalized_substrates ; 
 	
 	// The following is already performed by create_cell(). JULY 2017 ***
 	// child->register_microenvironment( get_microenvironment() );
@@ -577,32 +587,6 @@ void Cell::update_position( double dt )
 	// overwrite previous_velocity for future use 
 	// if(sqrt(dist(old_position, position))>3* phenotype.geometry.radius)
 		// std::cout<<sqrt(dist(old_position, position))<<"old_position: "<<old_position<<", new position: "<< position<<", velocity: "<<velocity<<", previous_velocity: "<< previous_velocity<<std::endl;
-	
-	
-	static double min_x = get_default_microenvironment()->mesh.x_coordinates[0]; 
-	static double max_x = get_default_microenvironment()->mesh.x_coordinates[ get_default_microenvironment()->mesh.x_coordinates.size()-1 ];
-	static double min_y = get_default_microenvironment()->mesh.y_coordinates[0]; 
-	static double max_y = get_default_microenvironment()->mesh.y_coordinates[ get_default_microenvironment()->mesh.y_coordinates.size()-1 ];
-	static double min_z = get_default_microenvironment()->mesh.z_coordinates[0]; 
-	static double max_z = get_default_microenvironment()->mesh.z_coordinates[ get_default_microenvironment()->mesh.z_coordinates.size()-1 ];
-	// new check: January 2019 
-	 
-	if( position[0] < min_x )
-	{ position[0] = min_x; }
-	if( position[0] > max_x )
-	{ position[0] = max_x; }
-	
-	if( position[1] < min_y )
-	{ position[1] = min_y; }
-	if( position[1] > max_y )
-	{ position[1] = max_y; }
-	
-	if( position[2] < min_z )
-	{ position[2] = min_z; }
-	if( position[2] > max_z )
-	{ position[2] = max_z; }
- 
-	// end new check on January 2019 -- make this a settable option 
 	
 	previous_velocity = velocity; 
 	
@@ -852,6 +836,9 @@ void Cell::convert_to_cell_definition( Cell_Definition& cd )
 
 void delete_cell( int index )
 {
+	// released internalized substrates (as of 1.5.x releases)
+	(*all_cells)[index]->release_internalized_substrates(); 
+	
 	// deregister agent in from the agent container
 	(*all_cells)[index]->get_container()->remove_agent((*all_cells)[index]);
 	// de-allocate (delete) the cell; 
@@ -937,4 +924,105 @@ std::vector<Cell*>& Cell::cells_in_my_container( void )
 	return get_container()->agent_grid[get_current_mechanics_voxel_index()];
 }
 
+void Cell::ingest_cell( Cell* pCell_to_eat )
+{
+	// absorb all the volume(s)
+
+	// absorb fluid volume (all into the cytoplasm) 
+	phenotype.volume.cytoplasmic_fluid += pCell_to_eat->phenotype.volume.fluid; 
+	pCell_to_eat->phenotype.volume.cytoplasmic_fluid = 0.0; 
+	
+	// absorb nuclear and cyto solid volume (into the cytoplasm) 
+	phenotype.volume.cytoplasmic_solid += pCell_to_eat->phenotype.volume.cytoplasmic_solid; 
+	pCell_to_eat->phenotype.volume.cytoplasmic_solid = 0.0; 
+	
+	phenotype.volume.cytoplasmic_solid += pCell_to_eat->phenotype.volume.nuclear_solid; 
+	pCell_to_eat->phenotype.volume.nuclear_solid = 0.0; 
+	
+	// consistency calculations 
+	
+	phenotype.volume.fluid = phenotype.volume.nuclear_fluid + 
+		phenotype.volume.cytoplasmic_fluid; 
+	pCell_to_eat->phenotype.volume.fluid = 0.0; 
+	
+	phenotype.volume.solid = phenotype.volume.cytoplasmic_solid + 
+		phenotype.volume.nuclear_solid; 
+	pCell_to_eat->phenotype.volume.solid = 0.0; 
+	
+	// no change to nuclear volume (initially) 
+	pCell_to_eat->phenotype.volume.nuclear = 0.0; 
+	pCell_to_eat->phenotype.volume.nuclear_fluid = 0.0; 
+	
+	phenotype.volume.cytoplasmic = phenotype.volume.cytoplasmic_solid + 
+		phenotype.volume.cytoplasmic_fluid; 
+	pCell_to_eat->phenotype.volume.cytoplasmic = 0.0; 
+	
+	phenotype.volume.total = phenotype.volume.nuclear + 
+		phenotype.volume.cytoplasmic; 
+	pCell_to_eat->phenotype.volume.total = 0.0; 
+
+	phenotype.volume.fluid_fraction = phenotype.volume.fluid / 
+		(  phenotype.volume.total ); 
+	pCell_to_eat->phenotype.volume.fluid_fraction = 0.0; 
+
+	phenotype.volume.cytoplasmic_to_nuclear_ratio = phenotype.volume.cytoplasmic_solid / 
+		( phenotype.volume.nuclear_solid + 1e-16 );
+		
+	// update corresponding BioFVM parameters (self-consistency) 
+	set_total_volume( phenotype.volume.total ); 
+	pCell_to_eat->set_total_volume( 0.0 ); 
+	
+	// absorb the internalized substrates 
+	
+	// multiply by the fraction that is supposed to be ingested (for each substrate) 
+	*(pCell_to_eat->internalized_substrates) *= 
+		*(pCell_to_eat->fraction_transferred_when_ingested); // 
+	
+	*internalized_substrates += *(pCell_to_eat->internalized_substrates); 
+	static int n_substrates = internalized_substrates->size(); 
+	pCell_to_eat->internalized_substrates->assign( n_substrates , 0.0 ); 	
+	
+	// trigger removal from the simulation 
+	// pCell_to_eat->die(); // I don't think this is safe if it's in an OpenMP loop 
+	// flag it for removal 
+	pCell_to_eat->flag_for_removal(); 
+	// mark it as dead 
+	pCell_to_eat->phenotype.death.dead = true; 
+	// set secretion and uptake to zero 
+	pCell_to_eat->phenotype.secretion.set_all_secretion_to_zero( );  
+	pCell_to_eat->phenotype.secretion.set_all_uptake_to_zero( ); 
+
+	
+	// deactivate all custom function 
+	pCell_to_eat->functions.custom_cell_rule = NULL; 
+	pCell_to_eat->functions.update_phenotype = NULL; 
+	pCell_to_eat->functions.contact_function = NULL; 
+	
+	// set it to zero mechanics 
+	pCell_to_eat->functions.custom_cell_rule = NULL; 
+	
+	return; 
+}
+
+void Cell::lyse_cell( void )
+{
+	flag_for_removal(); 
+	// mark it as dead 
+	phenotype.death.dead = true; 
+	// set secretion and uptake to zero 
+	phenotype.secretion.set_all_secretion_to_zero( );  
+	phenotype.secretion.set_all_uptake_to_zero( ); 
+	
+	// deactivate all custom function 
+	functions.custom_cell_rule = NULL; 
+	functions.update_phenotype = NULL; 
+	functions.contact_function = NULL; 
+	
+	// set it to zero mechanics 
+	functions.custom_cell_rule = NULL; 
+
+	return; 
+}
+
 };
+
