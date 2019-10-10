@@ -1,5 +1,3 @@
 #!/bin/sh
 
-/usr/bin/invoke_app "$@" -C "start_jupyter -A -T @tool pc4heterogen.ipynb" -t pc4heterogen \
-                         -u anaconda3-5.1
-
+/usr/bin/invoke_app "$@" -C "start_jupyter -A -T @tool pc4heterogen.ipynb" -t pc4heterogen -u anaconda-6
