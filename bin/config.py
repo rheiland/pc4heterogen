@@ -107,6 +107,7 @@ class ConfigTab(object):
 
         self.omp_threads = BoundedIntText(
             min=1,
+            max=4,
             description='# threads',
             layout=Layout(width=constWidth),
         )
